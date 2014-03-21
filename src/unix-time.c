@@ -3,10 +3,13 @@
 static Window *window;
 static TextLayer *text_layer;
 static TextLayer *time_layer; 
+static TextLayer *dprompt_layer; 
 static TextLayer *prompt_layer; 
+static TextLayer *date_layer; 
 
 GFont start_font;// = fonts_load_custom_font( resource_get_handle(RESOURCE_ID_FONT_START_12) );
 GFont font_large; 
+
 static void window_load(Window *window) {
 	Layer *window_layer = window_get_root_layer(window);
 	GRect bounds = layer_get_bounds(window_layer);
@@ -20,13 +23,27 @@ static void window_load(Window *window) {
 	text_layer_set_text_alignment(text_layer, GTextAlignmentLeft);
 	text_layer_set_font(text_layer, start_font); 
 
-	time_layer = text_layer_create((GRect) { .origin = {5, 27}, .size = { bounds.size.w, 30 } });
+	time_layer = text_layer_create((GRect) { .origin = {5, 25}, .size = { bounds.size.w, 30 } });
 	text_layer_set_text_color(time_layer, GColorWhite);
 	text_layer_set_background_color(time_layer, GColorClear); 
 	text_layer_set_text_alignment(time_layer, GTextAlignmentLeft);
 	text_layer_set_font(time_layer, font_large); 
 
-	prompt_layer = text_layer_create((GRect) { .origin = {5,65}, .size = {bounds.size.w, 20} });
+
+	dprompt_layer = text_layer_create((GRect) { .origin = {5,60}, .size = {bounds.size.w, 20}});
+	text_layer_set_text(dprompt_layer, "~$date +%h\\ %d");
+	text_layer_set_text_color(dprompt_layer, GColorWhite);
+	text_layer_set_background_color(dprompt_layer, GColorClear); 
+	text_layer_set_text_alignment(dprompt_layer, GTextAlignmentLeft);
+	text_layer_set_font(dprompt_layer, start_font); 
+
+	date_layer = text_layer_create((GRect) { .origin = {5, 80}, .size = { bounds.size.w, 30 } });
+	text_layer_set_text_color(date_layer, GColorWhite);
+	text_layer_set_background_color(date_layer, GColorClear); 
+	text_layer_set_text_alignment(date_layer, GTextAlignmentLeft);
+	text_layer_set_font(date_layer, font_large); 
+
+	prompt_layer = text_layer_create((GRect) { .origin = {5,80+35}, .size = {bounds.size.w, 20} });
 	//text_layer_set_text(prompt_layer, "~$_");
 	text_layer_set_text_color(prompt_layer, GColorWhite);
 	text_layer_set_background_color(prompt_layer, GColorClear); 
@@ -35,13 +52,17 @@ static void window_load(Window *window) {
 
 	layer_add_child(window_layer, text_layer_get_layer(text_layer));
 	layer_add_child(window_layer, text_layer_get_layer(time_layer));
+	layer_add_child(window_layer, text_layer_get_layer(dprompt_layer));
 	layer_add_child(window_layer, text_layer_get_layer(prompt_layer));
+	layer_add_child(window_layer, text_layer_get_layer(date_layer));
 }
 
 static void window_unload(Window *window) {
 	text_layer_destroy(text_layer);
+	text_layer_destroy(dprompt_layer);
 	text_layer_destroy(prompt_layer);
 	text_layer_destroy(time_layer);
+	text_layer_destroy(date_layer);
 
 	fonts_unload_custom_font(start_font); 
 	fonts_unload_custom_font(font_large); 
@@ -78,12 +99,25 @@ static void handleSecondTick(struct tm* now, TimeUnits units_changed)
 		strcpy(prompt+2, "clear ");
 	}
 	
-	if ((units_changed & MINUTE_UNIT) != 0)
-		handleMinuteTick(now, MINUTE_UNIT);
-	
 	prompt[cursor_loc] = (cursor) ? '_' : ' '; 
 	cursor = cursor ? false : true ; 
 	text_layer_set_text(prompt_layer, prompt); 
+}
+static void handleDayTick(struct tm* now, TimeUnits units_changed)
+{
+	static char date[] = "      ";
+
+	strftime(date, sizeof(date), "%h %d", now); 
+	text_layer_set_text(date_layer, date); 
+}
+static void handleTicks(struct tm* now, TimeUnits units_changed)
+{
+	if ((units_changed & SECOND_UNIT) != 0)
+		handleSecondTick(now, units_changed); 
+	if ((units_changed & MINUTE_UNIT) != 0)
+		handleMinuteTick(now, units_changed);
+	if ((units_changed & DAY_UNIT) != 0)
+		handleDayTick(now, units_changed); 
 }
 
 static void init(void) {
@@ -98,9 +132,8 @@ static void init(void) {
 
 	time_t now = time(NULL); 
 	struct tm *currentTime = localtime(&now); 
-	handleMinuteTick(currentTime, MINUTE_UNIT);
-	handleSecondTick(currentTime, SECOND_UNIT);
-	tick_timer_service_subscribe(SECOND_UNIT, &handleSecondTick); 
+	handleTicks(currentTime, MINUTE_UNIT | SECOND_UNIT | DAY_UNIT);
+	tick_timer_service_subscribe(SECOND_UNIT, &handleTicks); 
 }
 
 static void deinit(void) {
