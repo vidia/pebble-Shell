@@ -1,0 +1,27 @@
+{
+  "uuid": "307b9128-8bb3-41d9-a21b-1416b7f40942",
+  "shortName": "unix-time",
+  "longName": "unix-time",
+  "companyName": "KeepFlying Apps",
+  "versionCode": 1,
+  "versionLabel": "1.0.0",
+  "watchapp": {
+    "watchface": true
+  },
+  "appKeys": {},
+  "resources": {
+    "media": [
+		{ 
+			"type": "font", 
+			"name": "FONT_SYS_16",
+			"file": "fonts/AverageMono/AverageMonoBold.ttf"
+		},
+		{
+ 
+			"type": "font", 
+			"name": "FONT_SYS_30",
+			"file": "fonts/AverageMono/AverageMonoBold.ttf"
+		}
+	]
+  }
+}
