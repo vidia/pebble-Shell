@@ -13,8 +13,8 @@ GFont font_large;
 static void window_load(Window *window) {
 	Layer *window_layer = window_get_root_layer(window);
 	GRect bounds = layer_get_bounds(window_layer);
-	start_font = fonts_load_custom_font( resource_get_handle(RESOURCE_ID_FONT_SYS_16) );	
-	font_large = fonts_load_custom_font( resource_get_handle(RESOURCE_ID_FONT_SYS_30) );
+	start_font = fonts_load_custom_font( resource_get_handle(RESOURCE_ID_FONT_SAX_16) );	
+	font_large = fonts_load_custom_font( resource_get_handle(RESOURCE_ID_FONT_SAX_30) );
 
 	text_layer = text_layer_create((GRect) { .origin = {5,5}, .size = { bounds.size.w, 20 } });
 	text_layer_set_text(text_layer, "~$date +%I:%M");

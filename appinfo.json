@@ -17,10 +17,19 @@
 			"file": "fonts/AverageMono/AverageMonoBold.ttf"
 		},
 		{
- 
 			"type": "font", 
 			"name": "FONT_SYS_30",
 			"file": "fonts/AverageMono/AverageMonoBold.ttf"
+		}, 
+		{
+			"type": "font", 
+			"name": "FONT_SAX_30",
+			"file": "fonts/saxMono/saxmono.ttf"
+		},	
+		{
+			"type": "font", 
+			"name": "FONT_SAX_16",
+			"file": "fonts/saxMono/saxmono.ttf"
 		}
 	]
   }
