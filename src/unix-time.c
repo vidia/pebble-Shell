@@ -23,27 +23,27 @@ static void window_load(Window *window) {
 	text_layer_set_text_alignment(text_layer, GTextAlignmentLeft);
 	text_layer_set_font(text_layer, start_font); 
 
-	time_layer = text_layer_create((GRect) { .origin = {5, 25}, .size = { bounds.size.w, 30 } });
+	time_layer = text_layer_create((GRect) { .origin = {5, 20}, .size = { bounds.size.w, 30 } });
 	text_layer_set_text_color(time_layer, GColorWhite);
 	text_layer_set_background_color(time_layer, GColorClear); 
 	text_layer_set_text_alignment(time_layer, GTextAlignmentLeft);
 	text_layer_set_font(time_layer, font_large); 
 
 
-	dprompt_layer = text_layer_create((GRect) { .origin = {5,60}, .size = {bounds.size.w, 20}});
+	dprompt_layer = text_layer_create((GRect) { .origin = {5,55}, .size = {bounds.size.w, 20}});
 	text_layer_set_text(dprompt_layer, "~$date +%h\\ %d");
 	text_layer_set_text_color(dprompt_layer, GColorWhite);
 	text_layer_set_background_color(dprompt_layer, GColorClear); 
 	text_layer_set_text_alignment(dprompt_layer, GTextAlignmentLeft);
 	text_layer_set_font(dprompt_layer, start_font); 
 
-	date_layer = text_layer_create((GRect) { .origin = {5, 80}, .size = { bounds.size.w, 30 } });
+	date_layer = text_layer_create((GRect) { .origin = {5, 70}, .size = { bounds.size.w, 30 } });
 	text_layer_set_text_color(date_layer, GColorWhite);
 	text_layer_set_background_color(date_layer, GColorClear); 
 	text_layer_set_text_alignment(date_layer, GTextAlignmentLeft);
 	text_layer_set_font(date_layer, font_large); 
 
-	prompt_layer = text_layer_create((GRect) { .origin = {5,80+35}, .size = {bounds.size.w, 20} });
+	prompt_layer = text_layer_create((GRect) { .origin = {5,80+25}, .size = {bounds.size.w, 20} });
 	//text_layer_set_text(prompt_layer, "~$_");
 	text_layer_set_text_color(prompt_layer, GColorWhite);
 	text_layer_set_background_color(prompt_layer, GColorClear); 
