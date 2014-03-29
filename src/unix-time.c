@@ -13,7 +13,12 @@ GFont start_font;// = fonts_load_custom_font( resource_get_handle(RESOURCE_ID_FO
 GFont font_large; 
 
 static char hourmin[] = "~$date +%I:%M";
+static char timecmd[] = "             "; 
 static char monthday[] = "~$date +%h\\ %d";
+static char datecmd[] =  "              ";
+
+static void animateDatePrompt();
+static void animateTimePrompt();
 
 static void window_load(Window *window) {
 	Layer *window_layer = window_get_root_layer(window);
@@ -21,36 +26,40 @@ static void window_load(Window *window) {
 	start_font = fonts_load_custom_font( resource_get_handle(RESOURCE_ID_FONT_SAX_16) );	
 	font_large = fonts_load_custom_font( resource_get_handle(RESOURCE_ID_FONT_SAX_30) );
 
+	strcpy(timecmd, hourmin); 
+	strcpy(datecmd, monthday); 
+
 	text_layer = text_layer_create((GRect) { .origin = {5,5}, .size = { bounds.size.w, 20 } });
-	text_layer_set_text(text_layer, hourmin);
-	text_layer_set_text_color(text_layer, GColorWhite);
+	text_layer_set_text(text_layer, timecmd);
+	text_layer_set_text_color(text_layer, GColorClear);
 	text_layer_set_background_color(text_layer, GColorClear); 
 	text_layer_set_text_alignment(text_layer, GTextAlignmentLeft);
 	text_layer_set_font(text_layer, start_font); 
 
 	time_layer = text_layer_create((GRect) { .origin = {5, 20}, .size = { bounds.size.w, 30 } });
-	text_layer_set_text_color(time_layer, GColorWhite);
+
+	text_layer_set_text_color(time_layer, GColorClear);
 	text_layer_set_background_color(time_layer, GColorClear); 
 	text_layer_set_text_alignment(time_layer, GTextAlignmentLeft);
 	text_layer_set_font(time_layer, font_large); 
 
-
 	dprompt_layer = text_layer_create((GRect) { .origin = {5,55}, .size = {bounds.size.w, 20}});
 	text_layer_set_text(dprompt_layer, monthday);
-	text_layer_set_text_color(dprompt_layer, GColorWhite);
+	text_layer_set_text_color(dprompt_layer, GColorClear);
 	text_layer_set_background_color(dprompt_layer, GColorClear); 
 	text_layer_set_text_alignment(dprompt_layer, GTextAlignmentLeft);
 	text_layer_set_font(dprompt_layer, start_font); 
 
 	date_layer = text_layer_create((GRect) { .origin = {5, 70}, .size = { bounds.size.w, 30 } });
-	text_layer_set_text_color(date_layer, GColorWhite);
+
+	text_layer_set_text_color(date_layer, GColorClear);
 	text_layer_set_background_color(date_layer, GColorClear); 
 	text_layer_set_text_alignment(date_layer, GTextAlignmentLeft);
 	text_layer_set_font(date_layer, font_large); 
 
 	prompt_layer = text_layer_create((GRect) { .origin = {5,80+25}, .size = {bounds.size.w, 20} });
 	//text_layer_set_text(prompt_layer, "~$_");
-	text_layer_set_text_color(prompt_layer, GColorWhite);
+	text_layer_set_text_color(prompt_layer, GColorClear);
 	text_layer_set_background_color(prompt_layer, GColorClear); 
 	text_layer_set_text_alignment(prompt_layer, GTextAlignmentLeft);
 	text_layer_set_font(prompt_layer, start_font); 
@@ -74,41 +83,73 @@ static void window_unload(Window *window) {
 }
 
 
-static void animateTimePrompt();
 
 
 static void handleMinuteTick(struct tm* now, TimeUnits units_changed)
 {
+	text_layer_set_text_color(time_layer, GColorClear);
+	text_layer_set_text_color(date_layer, GColorClear); 
+	text_layer_set_text_color(dprompt_layer, GColorClear);
+	text_layer_set_text_color(prompt_layer, GColorClear);
+
+	
 	app_log(APP_LOG_LEVEL_DEBUG, "unix-time.c", 52, "---Minute tick %d", now->tm_min); 
 	static char time[] = "00:00"; 
 
 	strftime(time, sizeof(time), "%I:%M", now); 
 	text_layer_set_text(time_layer, time);
 
-	timer = app_timer_register(200, animateTimePrompt, 0);
+	unsigned int v = 0; 
+	for(v = 0; v < strlen(hourmin); v++) timecmd[v] = ' ';
+	for(v = 0; v < strlen(datecmd); v++) datecmd[v] = ' ';
+	timer = app_timer_register(200, animateTimePrompt, 0);	
+	
 }
+
 
 static void animateTimePrompt()
 {
-	static int i = 1; 
+	static unsigned int i = 2; 
 	static int TYPE_TIME = 200; 
-	static char buffer[] = "          "; 
 
 	app_log(APP_LOG_LEVEL_DEBUG, "unix-time.c", 97, "i: %d", i); 
-	strncpy(buffer, hourmin, i++);
-	text_layer_set_text(text_layer, buffer);
-	if((unsigned int) i >= strlen(hourmin))
+	strncpy(timecmd, hourmin, i++);
+	app_log(APP_LOG_LEVEL_DEBUG, "unix-time.c", 60, "timecmd: \"%s\"", timecmd); 
+	text_layer_set_text(text_layer, timecmd);
+	if( i > strlen(hourmin))
 	{
 		app_log(APP_LOG_LEVEL_DEBUG, "unix-time.c", 97, "Typed word!!: %d", i); 
-		i = 1;
-		unsigned int v = 0; 
-		for(v = 0; v < 10; v++) buffer[v] = ' ';  
+		i = 2;
+		text_layer_set_text_color(time_layer, GColorWhite);	
+		text_layer_set_text_color(dprompt_layer, GColorWhite);	
+		//app_timer_cancel(timer); 
+		timer = app_timer_register(TYPE_TIME, animateDatePrompt, 0); 
 	}
 	else
 		timer = app_timer_register(TYPE_TIME, animateTimePrompt, 0); 
 }
 
+static void animateDatePrompt()
+{
+	static int i = 2; 
+	static int TYPE_TIME = 200; 
 
+	app_log(APP_LOG_LEVEL_DEBUG, "unix-time.c", 97, "i: %d", i); 
+	strncpy(datecmd, monthday, i++);
+	app_log(APP_LOG_LEVEL_DEBUG, "unix-time.c", 60, "datacmd: \"%s\"", datecmd); 
+	text_layer_set_text(dprompt_layer, datecmd);
+	if((unsigned int) i > strlen(monthday))
+	{
+		app_log(APP_LOG_LEVEL_DEBUG, "unix-time.c", 97, "Typed word!!: %d", i); 
+		i = 2;
+		text_layer_set_text_color(date_layer, GColorWhite);	
+		text_layer_set_text_color(prompt_layer, GColorWhite); 
+		//timer = app_timer_register(TYPE_TIME, animateDatePrompt, 0); 
+		//app_timer_cancel(timer); 
+	}
+	else
+		timer = app_timer_register(TYPE_TIME, animateDatePrompt, 0); 
+}
 
 static void handleSecondTick(struct tm* now, TimeUnits units_changed)
 {
