@@ -7,8 +7,13 @@ static TextLayer *dprompt_layer;
 static TextLayer *prompt_layer; 
 static TextLayer *date_layer; 
 
+static AppTimer *timer; 
+
 GFont start_font;// = fonts_load_custom_font( resource_get_handle(RESOURCE_ID_FONT_START_12) );
 GFont font_large; 
+
+static char hourmin[] = "~$date +%I:%M";
+static char monthday[] = "~$date +%h\\ %d";
 
 static void window_load(Window *window) {
 	Layer *window_layer = window_get_root_layer(window);
@@ -17,7 +22,7 @@ static void window_load(Window *window) {
 	font_large = fonts_load_custom_font( resource_get_handle(RESOURCE_ID_FONT_SAX_30) );
 
 	text_layer = text_layer_create((GRect) { .origin = {5,5}, .size = { bounds.size.w, 20 } });
-	text_layer_set_text(text_layer, "~$date +%I:%M");
+	text_layer_set_text(text_layer, hourmin);
 	text_layer_set_text_color(text_layer, GColorWhite);
 	text_layer_set_background_color(text_layer, GColorClear); 
 	text_layer_set_text_alignment(text_layer, GTextAlignmentLeft);
@@ -31,7 +36,7 @@ static void window_load(Window *window) {
 
 
 	dprompt_layer = text_layer_create((GRect) { .origin = {5,55}, .size = {bounds.size.w, 20}});
-	text_layer_set_text(dprompt_layer, "~$date +%h\\ %d");
+	text_layer_set_text(dprompt_layer, monthday);
 	text_layer_set_text_color(dprompt_layer, GColorWhite);
 	text_layer_set_background_color(dprompt_layer, GColorClear); 
 	text_layer_set_text_alignment(dprompt_layer, GTextAlignmentLeft);
@@ -68,14 +73,42 @@ static void window_unload(Window *window) {
 	fonts_unload_custom_font(font_large); 
 }
 
+
+static void animateTimePrompt();
+
+
 static void handleMinuteTick(struct tm* now, TimeUnits units_changed)
 {
 	app_log(APP_LOG_LEVEL_DEBUG, "unix-time.c", 52, "---Minute tick %d", now->tm_min); 
 	static char time[] = "00:00"; 
 
 	strftime(time, sizeof(time), "%I:%M", now); 
-	text_layer_set_text(time_layer, time);			
+	text_layer_set_text(time_layer, time);
+
+	timer = app_timer_register(200, animateTimePrompt, 0);
 }
+
+static void animateTimePrompt()
+{
+	static int i = 1; 
+	static int TYPE_TIME = 200; 
+	static char buffer[] = "          "; 
+
+	app_log(APP_LOG_LEVEL_DEBUG, "unix-time.c", 97, "i: %d", i); 
+	strncpy(buffer, hourmin, i++);
+	text_layer_set_text(text_layer, buffer);
+	if((unsigned int) i >= strlen(hourmin))
+	{
+		app_log(APP_LOG_LEVEL_DEBUG, "unix-time.c", 97, "Typed word!!: %d", i); 
+		i = 1;
+		unsigned int v = 0; 
+		for(v = 0; v < 10; v++) buffer[v] = ' ';  
+	}
+	else
+		timer = app_timer_register(TYPE_TIME, animateTimePrompt, 0); 
+}
+
+
 
 static void handleSecondTick(struct tm* now, TimeUnits units_changed)
 {
