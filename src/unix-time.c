@@ -20,7 +20,11 @@ static char datecmd[] =  "              ";
 static void animateDatePrompt();
 static void animateTimePrompt();
 
-static struct tm* lastTime; 
+static struct tm* lastTime;
+
+static int TYPING_TICK = 150; 
+
+static bool promptVisible = false; 
 
 static void window_load(Window *window) {
 	Layer *window_layer = window_get_root_layer(window);
@@ -102,17 +106,20 @@ static void handleMinuteTick(struct tm* now, TimeUnits units_changed)
 	for(v = 0; v < strlen(hourmin); v++) timecmd[v] = ' ';
 	for(v = 0; v < strlen(datecmd); v++) datecmd[v] = ' ';
 
-	text_layer_set_text(time_layer, ""); 
+	text_layer_set_text(time_layer, "");
+	text_layer_set_text(date_layer, "");
+	text_layer_set_text(dprompt_layer, "");
+	text_layer_set_text(prompt_layer, "");
 
+	promptVisible=false; 
+	
 	timer = app_timer_register(200, animateTimePrompt, 0);	
-
 }
 
 
 static void animateTimePrompt()
 {
 	static unsigned int i = 2; 
-	static int TYPE_TIME = 200; 
 
 	app_log(APP_LOG_LEVEL_DEBUG, "unix-time.c", 97, "i: %d", i); 
 	strncpy(timecmd, hourmin, i++);
@@ -126,22 +133,19 @@ static void animateTimePrompt()
 		text_layer_set_text_color(dprompt_layer, GColorWhite);	
 		
 		static char time[] = "00:00"; 
-
 		strftime(time, sizeof(time), "%I:%M", lastTime); 
 		text_layer_set_text(time_layer, time);
 
-
 		//app_timer_cancel(timer); 
-		timer = app_timer_register(TYPE_TIME, animateDatePrompt, 0); 
+		timer = app_timer_register(TYPING_TICK, animateDatePrompt, 0); 
 	}
 	else
-		timer = app_timer_register(TYPE_TIME, animateTimePrompt, 0); 
+		timer = app_timer_register(TYPING_TICK, animateTimePrompt, 0); 
 }
 
 static void animateDatePrompt()
 {
 	static int i = 2; 
-	static int TYPE_TIME = 200; 
 
 	app_log(APP_LOG_LEVEL_DEBUG, "unix-time.c", 97, "i: %d", i); 
 	strncpy(datecmd, monthday, i++);
@@ -154,37 +158,46 @@ static void animateDatePrompt()
 		text_layer_set_text_color(date_layer, GColorWhite);	
 		text_layer_set_text_color(prompt_layer, GColorWhite); 
 		//timer = app_timer_register(TYPE_TIME, animateDatePrompt, 0); 
-		//app_timer_cancel(timer); 
+		//app_timer_cancel(timer);
+		
+		static char date[] = "      ";
+		strftime(date, sizeof(date), "%h %d", lastTime); 
+		text_layer_set_text(date_layer, date); 
+
+		promptVisible = true; 
 	}
 	else
-		timer = app_timer_register(TYPE_TIME, animateDatePrompt, 0); 
+		timer = app_timer_register(TYPING_TICK, animateDatePrompt, 0); 
 }
 
 static void handleSecondTick(struct tm* now, TimeUnits units_changed)
 {
-	app_log(APP_LOG_LEVEL_DEBUG, "unix-time.c", 60, "Second tick %d", now->tm_sec); 
-	static char prompt[] = "~$      ";
-	static bool cursor = true; 
-	static int cursor_loc = 2; 
-
-	if(now->tm_sec < 57) 
+	if(promptVisible)
 	{
-		if( prompt[3] != ' ')
-		{
-			app_log(APP_LOG_LEVEL_DEBUG, "unix-time.c", 67, "clearing prompt..."); 
-			cursor_loc = 2; 
-			strcpy(prompt+2, "      ");
-		}
-	}
-	else if(prompt[3] != 'l')
-	{	
-		cursor_loc = 7; 
-		strcpy(prompt+2, "clear ");
-	}
+		app_log(APP_LOG_LEVEL_DEBUG, "unix-time.c", 60, "Second tick %d", now->tm_sec); 
+		static char prompt[] = "~$      ";
+		static bool cursor = true; 
+		static int cursor_loc = 2; 
 
-	prompt[cursor_loc] = (cursor) ? '_' : ' '; 
-	cursor = cursor ? false : true ; 
-	text_layer_set_text(prompt_layer, prompt); 
+		if(now->tm_sec < 57) 
+		{
+			if( prompt[3] != ' ')
+			{
+				app_log(APP_LOG_LEVEL_DEBUG, "unix-time.c", 67, "clearing prompt..."); 
+				cursor_loc = 2; 
+				strcpy(prompt+2, "      ");
+			}
+		}
+		else if(prompt[3] != 'l')
+		{	
+			cursor_loc = 7; 
+			strcpy(prompt+2, "clear ");
+		}
+
+		prompt[cursor_loc] = (cursor) ? '_' : ' '; 
+		cursor = cursor ? false : true ; 
+		text_layer_set_text(prompt_layer, prompt); 
+	}
 }
 static void handleDayTick(struct tm* now, TimeUnits units_changed)
 {
@@ -199,8 +212,8 @@ static void handleTicks(struct tm* now, TimeUnits units_changed)
 		handleSecondTick(now, units_changed); 
 	if ((units_changed & MINUTE_UNIT) != 0)
 		handleMinuteTick(now, units_changed);
-	if ((units_changed & DAY_UNIT) != 0)
-		handleDayTick(now, units_changed); 
+//	if ((units_changed & DAY_UNIT) != 0)
+//		handleDayTick(now, units_changed); 
 }
 
 static void init(void) {
