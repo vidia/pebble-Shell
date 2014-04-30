@@ -20,6 +20,8 @@ static char datecmd[] =  "              ";
 static void animateDatePrompt();
 static void animateTimePrompt();
 
+static struct tm* lastTime; 
+
 static void window_load(Window *window) {
 	Layer *window_layer = window_get_root_layer(window);
 	GRect bounds = layer_get_bounds(window_layer);
@@ -92,18 +94,18 @@ static void handleMinuteTick(struct tm* now, TimeUnits units_changed)
 	text_layer_set_text_color(dprompt_layer, GColorClear);
 	text_layer_set_text_color(prompt_layer, GColorClear);
 
-	
-	app_log(APP_LOG_LEVEL_DEBUG, "unix-time.c", 52, "---Minute tick %d", now->tm_min); 
-	static char time[] = "00:00"; 
+	lastTime = now; 
 
-	strftime(time, sizeof(time), "%I:%M", now); 
-	text_layer_set_text(time_layer, time);
+	app_log(APP_LOG_LEVEL_DEBUG, "unix-time.c", 52, "---Minute tick %d", now->tm_min); 
 
 	unsigned int v = 0; 
 	for(v = 0; v < strlen(hourmin); v++) timecmd[v] = ' ';
 	for(v = 0; v < strlen(datecmd); v++) datecmd[v] = ' ';
+
+	text_layer_set_text(time_layer, ""); 
+
 	timer = app_timer_register(200, animateTimePrompt, 0);	
-	
+
 }
 
 
@@ -122,6 +124,13 @@ static void animateTimePrompt()
 		i = 2;
 		text_layer_set_text_color(time_layer, GColorWhite);	
 		text_layer_set_text_color(dprompt_layer, GColorWhite);	
+		
+		static char time[] = "00:00"; 
+
+		strftime(time, sizeof(time), "%I:%M", lastTime); 
+		text_layer_set_text(time_layer, time);
+
+
 		//app_timer_cancel(timer); 
 		timer = app_timer_register(TYPE_TIME, animateDatePrompt, 0); 
 	}
@@ -172,7 +181,7 @@ static void handleSecondTick(struct tm* now, TimeUnits units_changed)
 		cursor_loc = 7; 
 		strcpy(prompt+2, "clear ");
 	}
-	
+
 	prompt[cursor_loc] = (cursor) ? '_' : ' '; 
 	cursor = cursor ? false : true ; 
 	text_layer_set_text(prompt_layer, prompt); 
