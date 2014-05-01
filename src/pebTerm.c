@@ -30,7 +30,14 @@ static AppTimer *timer;
 GFont start_font;// = fonts_load_custom_font( resource_get_handle(RESOURCE_ID_FONT_START_12) );
 GFont font_large; 
 
-static char hourmin[] = "~$date +%I:%M";
+static char _24hourmin[] = "~$date +%H:%M";
+static char _12hourmin[] = "~$date +%I:%M";
+static char *hourmin;
+
+static char _24hourformat[] = "%H:%M";
+static char _12hourformat[] = "%I:%M";
+static char *timeFormat;
+
 static char timecmd[] = "             "; 
 static char monthday[] = "~$date +%h\\ %d";
 static char datecmd[] =  "              ";
@@ -151,7 +158,7 @@ static void animateTimePrompt()
 		text_layer_set_text_color(dprompt_layer, GColorWhite);	
 		
 		static char time[] = "00:00"; 
-		strftime(time, sizeof(time), "%I:%M", lastTime); 
+		strftime(time, sizeof(time),timeFormat, lastTime); 
 		text_layer_set_text(time_layer, time);
 
 		//app_timer_cancel(timer); 
@@ -242,6 +249,21 @@ static void init(void) {
 			.unload = window_unload,
 			});
 	const bool animated = true;
+	if(clock_is_24h_style())
+	{
+		
+		APP_LOG(APP_LOG_LEVEL_DEBUG, "In 24 hour mode: %s", _24hourmin);
+		hourmin = _24hourmin; 
+		timeFormat = _24hourformat; 
+	}
+	else 
+	{
+		APP_LOG(APP_LOG_LEVEL_DEBUG, "In 12 hour mode: %s", _12hourmin);
+		hourmin = _12hourmin; 
+		timeFormat = _12hourformat; 
+
+	}
+
 	window_stack_push(window, animated);
 
 	time_t now = time(NULL); 
