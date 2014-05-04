@@ -81,7 +81,7 @@ static void window_load(Window *window) {
 	text_layer_set_text_alignment(dprompt_layer, GTextAlignmentLeft);
 	text_layer_set_font(dprompt_layer, start_font); 
 
-	date_layer = text_layer_create((GRect) { .origin = {5, 70}, .size = { bounds.size.w, 35 } });
+	date_layer = text_layer_create((GRect) { .origin = {5, 70}, .size = { bounds.size.w, 39 } });
 
 	text_layer_set_text_color(date_layer, GColorClear);
 	text_layer_set_background_color(date_layer, GColorClear); 

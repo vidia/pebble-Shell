@@ -1,7 +1,7 @@
 {
     "longName": "Pebble Terminal",
     "companyName": "KeepFlying",
-    "versionLabel": "1.2.0",
+    "versionLabel": "1.2.1",
     "watchapp": {
         "watchface": true
     },
