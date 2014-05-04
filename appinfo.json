@@ -1,26 +1,29 @@
 {
-  "uuid": "307b9128-8bb3-41d9-a21b-1416b7f40942",
-  "shortName": "Pebble Terminal",
-  "longName": "Pebble Terminal",
-  "companyName": "KeepFlying",
-  "versionCode": 1,
-  "versionLabel": "1.1.0",
-  "watchapp": {
-    "watchface": true
-  },
-  "appKeys": {},
-  "resources": {
-    "media": [
-		{
-			"type": "font", 
-			"name": "FONT_SAX_30",
-			"file": "fonts/saxMono/saxmono.ttf"
-		},	
-		{
-			"type": "font", 
-			"name": "FONT_SAX_16",
-			"file": "fonts/saxMono/saxmono.ttf"
-		}
-	]
-  }
+    "longName": "Pebble Terminal",
+    "companyName": "KeepFlying",
+    "versionLabel": "1.1.0",
+    "watchapp": {
+        "watchface": true
+    },
+    "appKeys": {},
+    "resources": {
+        "media": [
+            {
+                "file": "fonts/SourceCodePro-Regular.ttf",
+                "name": "FONT_SOURCE_CODE_PRO_30",
+                "type": "font"
+            },
+            {
+                "file": "fonts/SourceCodePro-Regular.ttf",
+                "name": "FONT_SOURCE_CODE_PRO_16",
+                "type": "font"
+            }
+        ]
+    },
+    "uuid": "307b9128-8bb3-41d9-a21b-1416b7f40942",
+    "capabilities": [
+        ""
+    ],
+    "shortName": "Pebble Terminal",
+    "versionCode": 1
 }

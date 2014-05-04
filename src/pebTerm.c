@@ -54,8 +54,8 @@ static bool promptVisible = false;
 static void window_load(Window *window) {
 	Layer *window_layer = window_get_root_layer(window);
 	GRect bounds = layer_get_bounds(window_layer);
-	start_font = fonts_load_custom_font( resource_get_handle(RESOURCE_ID_FONT_SAX_16) );	
-	font_large = fonts_load_custom_font( resource_get_handle(RESOURCE_ID_FONT_SAX_30) );
+	start_font = fonts_load_custom_font( resource_get_handle(RESOURCE_ID_FONT_SOURCE_CODE_PRO_16) );	
+	font_large = fonts_load_custom_font( resource_get_handle(RESOURCE_ID_FONT_SOURCE_CODE_PRO_30) );
 
 	strcpy(timecmd, hourmin); 
 	strcpy(datecmd, monthday); 
