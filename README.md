@@ -10,7 +10,7 @@ This app can be found in the Pebble Appstore under the name "Pebble Terminal" by
 
 ##Screenshot
 
-![Image](https://raw.githubusercontent.com/vidia/Pebble-Shell/master/image.png)
+![Image](image.png)
 
 
 # Inspiration
