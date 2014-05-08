@@ -14,6 +14,7 @@ struct typer_data *init_typer(char* text, TextLayer* tl, int time, void (*onFini
   data->layer = tl; 
   data->onFinish = onFinish;
   data->cont = 1;
+  data->finished = false; 
 
   return data; 
 }
@@ -37,7 +38,11 @@ void typeTextInTextLayer(void *data)
 
   if( TYPER->index > TYPER->length )
   {
-    TYPER->onFinish();
+    if(TYPER->onFinish != NULL)
+    {
+      TYPER->finished = true; 
+      TYPER->onFinish();
+    }
   }
   else 
   {
