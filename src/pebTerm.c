@@ -104,6 +104,12 @@ static void window_unload(Window *window) {
 	fonts_unload_custom_font(start_font); 
 	fonts_unload_custom_font(font_large); 
 
+  if(date_command_data != NULL)
+    destroy_typer(date_command_data);
+  if(time_command_data != NULL)
+    destroy_typer(time_command_data);
+  if(clear_command_data != NULL)
+    destroy_typer(clear_command_data);
 }
 
 static void onDateTypeFinish()
@@ -125,7 +131,7 @@ static void onTimeTypeFinish()
 
   if(date_command_data != NULL)
     destroy_typer(date_command_data);
-  date_command_data = init_typer(monthday, dprompt_layer, TYPING_TICK, onDateTypeFinish);
+  date_command_data = init_typer(monthday, dprompt_layer, TYPING_TICK, onDateTypeFinish, 2);
   typeTextInTextLayer((void*) date_command_data);
 }
 
@@ -144,7 +150,7 @@ static void handleMinuteTick(struct tm* now, TimeUnits units_changed)
 
   if(time_command_data != NULL)
     destroy_typer(time_command_data);
-  time_command_data = init_typer(hourmin, time_prompt_layer, TYPING_TICK, onTimeTypeFinish);
+  time_command_data = init_typer(hourmin, time_prompt_layer, TYPING_TICK, onTimeTypeFinish, 2);
   typeTextInTextLayer((void*) time_command_data); 
 }
 
@@ -170,7 +176,7 @@ static void handleSecondTick(struct tm* now, TimeUnits units_changed)
 		{
       if(clear_command_data != NULL)
         destroy_typer(clear_command_data);
-      clear_command_data = init_typer(strcpy(prompt+2, "clear") - 2, prompt_layer, TYPING_TICK, onClear);
+      clear_command_data = init_typer(strcpy(prompt+2, "clear") - 2, prompt_layer, TYPING_TICK, onClear, 2);
       typeTextInTextLayer((void*) clear_command_data);
 		}
 
@@ -226,7 +232,7 @@ static void init(void) {
 }
 
 static void deinit(void) {
-	text_layer_destroy(time_prompt_layer);
+//	text_layer_destroy(time_prompt_layer);
 	window_destroy(window);
 }
 
@@ -236,5 +242,10 @@ int main(void) {
 	APP_LOG(APP_LOG_LEVEL_DEBUG, "Done initializing, pushed window: %p", window);
 
 	app_event_loop();
-	deinit();
+  
+	APP_LOG(APP_LOG_LEVEL_DEBUG, "leaving event loop.");
+
+  deinit();
+
+	APP_LOG(APP_LOG_LEVEL_DEBUG, "Finished");
 }

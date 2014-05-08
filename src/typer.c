@@ -1,13 +1,17 @@
 #include <pebble.h>
 #include "typer.h"
 
-struct typer_data *init_typer(char* text, TextLayer* tl, int time, void (*onFinish)())
+struct typer_data *init_typer(char* text, TextLayer* tl, int time, void (*onFinish)(), int startIndex)
 {
   struct typer_data *data = (struct typer_data*) malloc(sizeof(struct typer_data));
 
+  app_log(APP_LOG_LEVEL_INFO, "pebble.c", 8, "Allocated data: %p", data);
+
   data->buffer = (char*) malloc(sizeof(char) * strlen(text) + 1);
 
-  data->index = 0; 
+  app_log(APP_LOG_LEVEL_INFO, "pebble.c", 12, "Allocated buffer: %p", data->buffer);
+
+  data->index = startIndex; 
   data->text = text; 
   data->length = strlen(data->text);
   data->tickTime = time; 
@@ -23,8 +27,13 @@ void destroy_typer(struct typer_data* data)
 {
   static char empty[1] = ""; 
   text_layer_set_text(data->layer, empty);
+
+  app_log(APP_LOG_LEVEL_INFO, "pebble.c", 31, "Freeing buffer: %p",  data->buffer);
   free(data->buffer);
+  app_log(APP_LOG_LEVEL_INFO, "pebble.c", 33, "Freeing buffer: %p SUCCESS!",  data->buffer);
+  app_log(APP_LOG_LEVEL_INFO, "pebble.c", 32, "Freeing data: %p",  data);
   free(data);
+  app_log(APP_LOG_LEVEL_INFO, "pebble.c", 32, "Freeing data: %p SUCCESS!",  data);
 }
 
 void typeTextInTextLayer(void *data)
