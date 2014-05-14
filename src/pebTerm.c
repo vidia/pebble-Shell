@@ -141,25 +141,19 @@ static void onClear()
 {
   //text_layer_set_text(prompt_layer, "~$ ");
   strcpy(prompt+2, "      "); 
-  
+
 	promptVisible=false; 
- 
- 
+
 	text_layer_set_text(time_layer, "");
 	text_layer_set_text(date_layer, "");
 	text_layer_set_text(dprompt_layer, "");
-
 	text_layer_set_text(prompt_layer, "");
-
- 
 
   if(time_command_data != NULL)
     destroy_typer(time_command_data);
   time_command_data = init_typer(hourmin, time_prompt_layer, TYPING_TICK, onTimeTypeFinish, 2);
   typeTextInTextLayer((void*) time_command_data); 
 }
-
-
 
 static void handleMinuteTick(struct tm* now, TimeUnits units_changed)
 {
@@ -172,9 +166,6 @@ static void handleMinuteTick(struct tm* now, TimeUnits units_changed)
   typeTextInTextLayer((void*) clear_command_data);
 }
 
-
-
-
 static void handleSecondTick(struct tm* now, TimeUnits units_changed)
 {
 	if(promptVisible)
@@ -182,7 +173,6 @@ static void handleSecondTick(struct tm* now, TimeUnits units_changed)
 		app_log(APP_LOG_LEVEL_DEBUG, "unix-time.c", 60, "Second tick %d", now->tm_sec); 
 		static bool cursor = true; 
 		static int cursor_loc = 2; 
-    static bool isClearing = false; 
 
     if(clear_command_data != NULL && clear_command_data->finished == false)
     {
@@ -231,7 +221,9 @@ static void init(void) {
 
 	time_t now = time(NULL); 
 	struct tm *currentTime = localtime(&now); 
-	handleTicks(currentTime, MINUTE_UNIT | SECOND_UNIT | DAY_UNIT);
+  lastTime = currentTime; 
+  onClear(); 
+//	handleTicks(currentTime, MINUTE_UNIT | SECOND_UNIT | DAY_UNIT);
 	tick_timer_service_subscribe(SECOND_UNIT, &handleTicks); 
 }
 
