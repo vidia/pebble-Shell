@@ -47,6 +47,8 @@ static struct typer_data *time_command_data;
 static struct typer_data *date_command_data;
 static struct typer_data *clear_command_data;
 
+static char prompt[] = "~$      ";
+
 static bool promptVisible = false; 
 
 static void window_load(Window *window) {
@@ -135,18 +137,21 @@ static void onTimeTypeFinish()
   typeTextInTextLayer((void*) date_command_data);
 }
 
-static void handleMinuteTick(struct tm* now, TimeUnits units_changed)
+static void onClear()
 {
-	lastTime = now; 
-
-	app_log(APP_LOG_LEVEL_DEBUG, "unix-time.c", 52, "---Minute tick %d", now->tm_min); 
-
+  //text_layer_set_text(prompt_layer, "~$ ");
+  strcpy(prompt+2, "      "); 
+  
+	promptVisible=false; 
+ 
+ 
 	text_layer_set_text(time_layer, "");
 	text_layer_set_text(date_layer, "");
 	text_layer_set_text(dprompt_layer, "");
+
 	text_layer_set_text(prompt_layer, "");
 
-	promptVisible=false; 
+ 
 
   if(time_command_data != NULL)
     destroy_typer(time_command_data);
@@ -154,13 +159,21 @@ static void handleMinuteTick(struct tm* now, TimeUnits units_changed)
   typeTextInTextLayer((void*) time_command_data); 
 }
 
-static char prompt[] = "~$      ";
 
-static void onClear()
+
+static void handleMinuteTick(struct tm* now, TimeUnits units_changed)
 {
-  //text_layer_set_text(prompt_layer, "~$ ");
-  strcpy(prompt+2, "      "); 
+	lastTime = now; 
+
+	app_log(APP_LOG_LEVEL_DEBUG, "unix-time.c", 52, "---Minute tick %d", now->tm_min); 
+  if(clear_command_data != NULL)
+    destroy_typer(clear_command_data);
+  clear_command_data = init_typer(strcpy(prompt+2, "clear") - 2, prompt_layer, TYPING_TICK, onClear, 2);
+  typeTextInTextLayer((void*) clear_command_data);
 }
+
+
+
 
 static void handleSecondTick(struct tm* now, TimeUnits units_changed)
 {
@@ -170,15 +183,6 @@ static void handleSecondTick(struct tm* now, TimeUnits units_changed)
 		static bool cursor = true; 
 		static int cursor_loc = 2; 
     static bool isClearing = false; 
-
-
-		if(now->tm_sec == 58) 
-		{
-      if(clear_command_data != NULL)
-        destroy_typer(clear_command_data);
-      clear_command_data = init_typer(strcpy(prompt+2, "clear") - 2, prompt_layer, TYPING_TICK, onClear, 2);
-      typeTextInTextLayer((void*) clear_command_data);
-		}
 
     if(clear_command_data != NULL && clear_command_data->finished == false)
     {
